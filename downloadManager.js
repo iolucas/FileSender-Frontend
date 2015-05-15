@@ -53,8 +53,8 @@ function DownloadFile(fileId, fileName, fileSize, fileType) {
         localStorager.DeleteFile(self.id, function(e) {
             if(e)
                 log(e);
-            else
-                ("File deleted");            
+            /*else
+                log("File deleted");*/            
         });      
         if(self.onDownloadCanceled)
             self.onDownloadCanceled();              
