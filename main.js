@@ -1,7 +1,7 @@
 "use strict"; //ensure exception rise in case of bad pratices use
 
 var username = "",  //var to store instance username
-    //sessionAddr = window.location.pathname.substr(1),   //Get sessionAddress from the address bar 
+    sessionAddr, //= window.location.pathname.substr(1),   //Get sessionAddress from the address bar 
     deviceType = isMobile() ? "mobile":"pc",    //Get deviceType    
 
     rtcManager,
@@ -15,7 +15,10 @@ var username = "",  //var to store instance username
     dcOpenCallback = []; //datachannel open callback queue to be executed
 
 //window.onload = function() {
-function begin() {  
+function begin(session) {
+    
+    sessionAddr = session;
+    
     username = getCookie("username");   //Get username cookie, if not, request one               
     if(username != "")  //if it does exists, 
         main();   //starts the application with the username speficified, session and deviceType
@@ -47,13 +50,16 @@ function setUserAndStart() {
 //--------------  MAIN FUNCTION TO BE EXECUTED TO START EVERYTHING  --------------//
 
 function main() {
-    
+    //setCookie("username", "", 0); 
     //Set user info in the top of the screen
     SetLocalUser(username, sessionAddr, deviceType);
     
     //Check compatibility, if not, return and inform
     if(!CheckCompatibility()) {
-        ShowMessage("Ohh, unfortunatelly this browser is not compatible with qeek.me =/", "#d00");
+        if(window.ptbr)
+            ShowMessage("Ohh, infelizmente esse browser não é compatível com qeek.me =/", "#d00");
+        else
+            ShowMessage("Ohh, unfortunatelly this browser is not compatible with qeek.me =/", "#d00");
         return;
     } 
     
@@ -75,31 +81,56 @@ function main() {
     wSocket.on("connected", function() {
         
         wSocket.on("joinError", function(session) {
-            ShowMessage("Erro: A sessão '" + session + "' não existe. Verifique se digitou correto ou <a style='color: #fff' href='http://" + window.location.host + "'>clique aqui</a> para criar uma nova. ", "#a00");
+            if(window.ptbr)
+                ShowMessage("Erro: A sessão '" + session + "' não existe. Verifique se digitou correto ou <a style='color: #fff' href='http://" + window.location.host + "'>clique aqui</a> para criar uma nova. ", "#a00");
+            else
+                ShowMessage("Error: The session '" + session + "' doesn't exists. Make sure you typed it correctly or <a style='color: #fff' href='http://" + window.location.host + "'>click here</a> to create a new one. ", "#a00");
             wSocket.close();    //then, close the connection   
+        });
+        
+        wSocket.on("close", function() {
+            /*if(window.ptbr)
+                ShowMessage("Conexão com o servidor perdida =(");
+            else
+                ShowMessage("Server connection lost =(", "#800");*/
+        });
+        
+        wSocket.on("isAlive", function() {
+            wSocket.emit("ImAlive");  
         });
         
         wSocket.on("sessionJoined", function(session) {
             
             if(session != sessionAddr) {  //if session joined is different from the local one
-                ShowMessage("Error: An error ocurred while joining session: '" + session, "#a00");
+                if(window.ptbr)
+                    ShowMessage("Erro: Um erro ocorreu ao entrar na sessão: '" + session, "#a00");
+                else
+                    ShowMessage("Error: An error ocurred while joining session: '" + session, "#a00");
                 wSocket.close();    //then, close the connection
                 return; //and return
             }
  
             window.onbeforeunload = function() {
-                if(lengthOf(devices))
-                return "Hey, your session is still active!";       
+                if(lengthOf(devices)) {
+                    if(window.ptbr)
+                        return "Hey, sua sessão ainda está ativa!";
+                    else
+                        return "Hey, your session is still active!";
+                }
             }           
-
-            ShowTempMessage("Conectado!", 3000);
+            if(window.ptbr)
+                ShowTempMessage("Conectado!", 3000);
+            else
+                ShowTempMessage("Connected!", 3000);
         });
         
         wSocket.on("NewDevice", function(dId, dName, dOrigin, dType) {
             if(devices[dId])    //if this device exists, 
                 return; //do nothing and returns
-            
-            ShowTempMessage("Novo dispositivo!", 3000);
+            if(window.ptbr)
+                ShowTempMessage("Novo dispositivo!", 3000);
+            else
+                ShowTempMessage("New device!", 3000);
             
             //creates new object for the arrived device and put the device obj in the devices array  
             devices[dId] = new Device(dId, dName, dOrigin, dType);
@@ -109,14 +140,20 @@ function main() {
     });
     
     wSocket.on("peerDataError", function(destId, data) {
-        ShowTempMessage("Error: Peer data sent error =(", 5000, "#f00");    
+        if(window.ptbr)
+            ShowTempMessage("Erro: Erro ao enviar os dados =(", 5000, "#f00");
+        else
+            ShowTempMessage("Error: Peer data sent error =(", 5000, "#f00");
     });
     
     wSocket.on("peerClosure", function(closedId) {
         if(!devices[closedId])  //checks if the id is not present on this instance
             return; //if so, return and do nothing 
         
-        ShowTempMessage(devices[closedId].name + " has disconnected.", 3000, "#f00");
+        if(window.ptbr)
+            ShowTempMessage(devices[closedId].name + " disconectou.", 3000, "#f00");
+        else
+            ShowTempMessage(devices[closedId].name + " has disconnected.", 3000, "#f00");
     
         devices[closedId].Delete(); //execute sequences to delete this device
         
@@ -132,9 +169,12 @@ function main() {
     
 
     //All set, connect websocket
-    ShowMessage("Conectando...");
+    if(window.ptbr)
+        ShowMessage("Conectando...");
+    else
+        ShowMessage("Connecting...");
     //wSocket.connect("ws://" + wsUrl);
-    wSocket.connect("wss://ach2.mybluemix.net/");
+    wSocket.connect("wss://qeekmeserver2.mybluemix.net/");
 }
 
 function OnDataChannelConnection(id, dataChannel) {
@@ -188,12 +228,18 @@ function OnDataChannelConnection(id, dataChannel) {
         
         if(device.download) {
             device.CancelDownload(false);
-            ShowTempMessage("Download cancelado.", 4000, "#f00");
+            if(window.ptbr)
+                ShowTempMessage("Download cancelado.", 4000, "#f00");
+            else
+                ShowTempMessage("Download canceled.", 4000, "#f00");
         }
         
         if(device.localFile) {
             device.CancelUpload(false);
-            ShowTempMessage("Upload cancelado.", 4000, "#f00");
+                        if(window.ptbr)
+                ShowTempMessage("Upload cancelado.", 4000, "#f00");
+            else
+                ShowTempMessage("Upload canceled.", 4000, "#f00");
         }
         
         //Close everything related to dataChannel here
@@ -202,16 +248,35 @@ function OnDataChannelConnection(id, dataChannel) {
     });
     
     dataChannel.on("NewDownload", function(fileId) {
-        var fileInfo = getFileInfo(fileId);
+        if(!fileId)
+            return;
         
-        ShowPopup(device, "Quer te enviar o arquivo:", fileInfo, "Aceitar", "Recusar", function() {
+        var fileInfo = getFileInfo(fileId);
+        if(window.ptbr) {
+            var ack = "Aceitar",
+                nack = "Recusar",
+                msg = "Quer te enviar o arquivo:",
+                state = "Recebendo...",
+                complete = "Download completo.",
+                canceled = "Download cancelado.";
+        } else {
+                var ack = "Accept",
+                nack = "Refuse",
+                msg = "Wants to send you the file:",
+                state = "Receiving...",
+                complete = "Download complete.",
+                canceled = "Download canceled.";
+        }
+        
+        
+        ShowPopup(device, msg, fileInfo, ack, nack, function() {
             //Accept callback    
             
             dataChannel.emit("DownloadAccepted", fileId);  
             
             device.icon.setDownloadName(fileInfo.name);
             device.icon.setDownloadProgress(0, fileInfo.size);
-            device.icon.setDownloadState("Recebendo...");
+            device.icon.setDownloadState(state);
             device.icon.showDownload();
             
             device.download = new DownloadFile(fileId,fileInfo.name, fileInfo.size, fileInfo.type);
@@ -223,13 +288,13 @@ function OnDataChannelConnection(id, dataChannel) {
             device.download.onDownloadComplete = function() { 
                 device.icon.hideDownload();
                 device.download = null;
-                ShowTempMessage("Download Completo.", 3000);
+                ShowTempMessage(complete, 3000);
             }
             
             device.download.onDownloadCanceled = function() {
                 delete device.download;  //clear download instance register
                 
-                ShowTempMessage("Download cancelado.", 4000, "#f00");
+                ShowTempMessage(canceled, 4000, "#f00");
             }
     
             device.download.StartRequestChunk();   //start the requesting chunk proceedures 
@@ -242,15 +307,22 @@ function OnDataChannelConnection(id, dataChannel) {
     });
     
     dataChannel.on("DownloadRefused", function(fileId) {
-        if(device) {
+        if(device.download) {
             device.CancelUpload(false);
-            ShowTempMessage(device.name + " recusou o arquivo.", 5000, "#f00");   
+            if(window.ptbr)
+                ShowTempMessage(device.name + " recusou o arquivo.", 5000, "#f00");
+            else
+                ShowTempMessage(device.name + " refused the file.", 5000, "#f00");
         }          
     });
     
     dataChannel.on("DownloadAccepted", function(fileId) {
-        if(device.localFile)
-            device.icon.setUploadState("Enviando...");        
+        if(device.localFile) {
+            if(window.ptbr)
+                device.icon.setUploadState("Enviando...");
+            else
+                device.icon.setUploadState("Sending...");
+        }
     });
     
     dataChannel.on("ChunkReq", function(fileId, chunkPointer) {
@@ -260,14 +332,23 @@ function OnDataChannelConnection(id, dataChannel) {
     });
     
     dataChannel.on("CancelDownload", function() {
-        ShowTempMessage("Download cancelado.", 4000, "#f00");
-        device.CancelDownload(false);
-        
+        if(device.localFile) {
+            if(window.ptbr)
+                ShowTempMessage("Download cancelado.", 4000, "#f00");
+            else
+                ShowTempMessage("Download canceled.", 4000, "#f00");
+            device.CancelDownload(false);
+        }
     });
     
     dataChannel.on("CancelUpload", function() {
-        ShowTempMessage("Upload cancelado.", 4000, "#f00");
-        device.CancelUpload(false);
+        if(device.download) {
+            if(window.ptbr)
+                ShowTempMessage("Upload cancelado.", 4000, "#f00");
+            else
+                ShowTempMessage("Upload canceled.", 4000, "#f00");
+            device.CancelUpload(false);
+        }
     });
 
     
@@ -288,8 +369,11 @@ function Device(id, name, origin, type) {
     var self = this;
     
     this.id = id;
-    this.name = name;   
-    this.origin = origin = (origin == "local") ? "Dispositivo Local" : "Dispositivo de Sessão";
+    this.name = name;
+    if(window.ptbr)
+        this.origin = origin = (origin == "local") ? "Dispositivo Local" : "Dispositivo de Sessão";
+    else
+        this.origin = origin = (origin == "local") ? "Local Device" : "Session Device";
     this.type = type;
     
     this.dataChannel;   //var to store device dataChannel reference
@@ -318,8 +402,10 @@ function Device(id, name, origin, type) {
                 icon.setUploadProgress(localFile.sent,localFile.size);
                 
                 if(localFile.sent == localFile.size) {
-                    //icon.setUploadState("Transferência Completa");
-                    ShowTempMessage("Transferência Completa!", 3000);
+                    if(window.ptbr)
+                        ShowTempMessage("Transferência Completa!", 3000);
+                    else
+                        ShowTempMessage("Transfer Complete!", 3000);
                     self.CancelUpload(false);
                 }
             }
@@ -331,14 +417,23 @@ function Device(id, name, origin, type) {
                 
         if(self.dataChannel) {  //check if this device connection already exists,
             self.dataChannel.emit("NewDownload", fileId);
-            icon.setUploadState("Aguardando...");    
+            if(window.ptbr)
+                icon.setUploadState("Aguardando...");
+            else
+                icon.setUploadState("Awaiting...");
                     
-        } else {    //if not,  
-            icon.setUploadState("Conectando...");
+        } else {    //if not,
+            if(window.ptbr)
+                icon.setUploadState("Conectando...");
+            else
+                icon.setUploadState("Connecting...");
             rtcManager.NewConnection(id);  //create new connection to this id 
             dcOpenCallback[id] = function() {
                 self.dataChannel.emit("NewDownload", fileId);
-                icon.setUploadState("Aguardando..."); 
+                            if(window.ptbr)
+                icon.setUploadState("Aguardando...");
+            else
+                icon.setUploadState("Awaiting...");
             }
         }
                 
@@ -346,12 +441,29 @@ function Device(id, name, origin, type) {
                 
     }, function(){
         //File Download Hold callback
-        ShowPopup(self, "Deseja realmente interromper o download do arquivo:", self.download, "Sim", "Não", function() {
+        if(window.ptbr) {
+            var dmsg = "Deseja realmente interromper o download do arquivo:",
+                yLabel = "Sim",
+                nLabel = "Não";  
+        } else {
+            var dmsg = "Do you really want to stop the download of the file:",
+                yLabel = "Yes",
+                nLabel = "No";   
+        }
+        ShowPopup(self, dmsg, self.download, yLabel, nLabel, function() {
             self.CancelDownload(true);
         }, function() {});
     }, function(){
         //File Upload hold callback
-        ShowPopup(self, "Deseja realmente interromper o upload do arquivo:", self.localFile, "Sim", "Não", function() {
+        if(window.ptbr) { var umsg = "Deseja realmente interromper o upload do arquivo:",
+            yLabel = "Sim",
+            nLabel = "Não";  
+        } else {
+           var umsg = "Do you really want to stop the upload of the file:",
+               yLabel = "Yes",
+               nLabel = "No";            
+        }
+        ShowPopup(self, umsg, self.localFile, yLabel, nLabel, function() {
             self.CancelUpload(true);
         }, function() {});
     });
