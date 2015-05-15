@@ -126,7 +126,10 @@ function DeviceIcon(deviceName, deviceOrigin, deviceType, uploadCallback, cancel
     
     var downCancel = document.createElement("td");
     downCancel.setAttribute("class", "fileLastCol");
-    downCancel.innerHTML = "Pressione para Cancelar";
+    if(window.ptbr)
+        downCancel.innerHTML = "Pressione para Cancelar";
+    else
+        downCancel.innerHTML = "Hold to Cancel";
     
     //  Upload Layout //
     
@@ -167,8 +170,10 @@ function DeviceIcon(deviceName, deviceOrigin, deviceType, uploadCallback, cancel
     
     var upCancel = document.createElement("td");
     upCancel.setAttribute("class", "fileLastCol");
-    upCancel.innerHTML = "Pressione para Cancelar";  
-    
+    if(window.ptbr)
+        upCancel.innerHTML = "Pressione para Cancelar";  
+    else
+        upCancel.innerHTML = "Hold to Cancel"; 
     //  Append Everything   //
     
     newDevice.appendChild(mainDevice);
@@ -406,8 +411,10 @@ function ShowTerms(){
         tData0 = document.createElement("td"),
     
         frame = document.createElement("iframe");
-    
-    frame.src = "terms.html";
+    if(window.ptbr)
+        frame.src = "terms-ptbr.html";
+    else
+        frame.src = "terms.html";
     frame.setAttribute("class", "terms");
     
     var popup = document.createElement("table");
@@ -432,7 +439,7 @@ function ShowTerms(){
     parent.appendChild(table); 
 }
 
-function ShowAbout(){   
+function ShowAbout(pt){   
     
     modalsQty++;    //increase the modalsQty variable
     DisableScreen();
@@ -446,7 +453,10 @@ function ShowAbout(){
     
         frame = document.createElement("iframe");
     
-    frame.src = "about.html";
+    if(window.ptbr)
+        frame.src = "about-ptbr.html";
+    else
+        frame.src = "about.html";
     frame.setAttribute("class", "terms");
     
     var popup = document.createElement("table");
