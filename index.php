@@ -20,9 +20,15 @@
     </style>
     <body>
         <br>
-        <img src="img/logo3.png">
+        <img src="img/logo4.png">
         <br><br><br>
-        Carregando...<br><br> É rapidinho =D~~
+        <?php
+            $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+            if($lang == "pt")
+                echo "Carregando...<br><br> É rapidinho =D~~";
+            else 
+                echo "Loading...<br><br> It's fast =D~~";   
+        ?>
         <script src="Wocket.js"></script>
         <script>
             var s = new Wocket();
@@ -32,7 +38,7 @@
                 });
                 s.emit("createSession");
             });
-            s.connect("wss://ach2.mybluemix.net/");
+            s.connect("wss://qeekmeserver2.mybluemix.net/");
         </script>    
     </body>
 </html>
