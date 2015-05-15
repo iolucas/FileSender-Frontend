@@ -62,7 +62,7 @@ var chunksPerAck = 32;
     document.getElementById("files").value = "";    //clear input file data to be able load same data if need in the next operation
 });*/
 
-function DeleteFiles() {
+/*function DeleteFiles() {
     for(var fileId in DeletationArray) {
         DeleteLocalFile(fileId);
         DeleteIcon(fileId);   
@@ -70,7 +70,7 @@ function DeleteFiles() {
     }
         
     document.getElementById("trashIco").style.display = "none";
-}
+}*/
 
 function isFileAPIReady() {
     // Check for the various File API support.
@@ -80,8 +80,8 @@ function isFileAPIReady() {
         return false;//Create system to work on browsers like that does not support the api
 }
 
-var LocalFiles = [];
-var RemoteFiles = [];
+//var LocalFiles = [];
+//var RemoteFiles = [];
 
 /*
 function CreateLocalFile(fileId, fileHandler) {
@@ -103,7 +103,7 @@ function DeleteLocalFile(fileId) {
         
     return true;    //if everything were sucessfull, return true
 }*/
-
+/*
 function CreateRemoteFile(fileId, fileObject, fileOwnerId, fileOwnerName) {
     
     if(RemoteFiles[fileId])  //checks whether this id already exists, if so, return null
@@ -113,8 +113,8 @@ function CreateRemoteFile(fileId, fileObject, fileOwnerId, fileOwnerName) {
     RemoteFiles[fileId] = newRemoteFile;  //assign the new object to the collection id
         
     return newRemoteFile;    //if everything were sucessfull, return true
-}
-
+}*/
+/*
 function DeleteRemoteFile(fileId) {
                           
     if(!RemoteFiles[fileId])  //checks whether this id already exists, if not, return false
@@ -123,7 +123,7 @@ function DeleteRemoteFile(fileId) {
     delete RemoteFiles[fileId];    //delete remote file from the collection    
         
     return true;    //if everything were sucessfull, return true
-}
+}*/
 
 function LocalFile(fileId, fileHandler) {
     
@@ -175,7 +175,7 @@ function LocalFile(fileId, fileHandler) {
         return true;    //if everything were sucessfull, return true
     };
 }
-
+/*
 function RemoteFile(fileId, fileObject, fileOwnerId, fileOwnerName) {
     
     var self = this;    //var to hold the reference to this object to be passed to another functions/objects
@@ -190,7 +190,7 @@ function RemoteFile(fileId, fileObject, fileOwnerId, fileOwnerName) {
     this.FileId = fileId;   //var to store the file id
     
     this.downloaded = false;
-}
+}*/
 
 function getFileId(fileObject) {
     //return [fileObject.name, fileObject.size, fileObject.type, fileObject.lastModified, ownerId].join("*");
