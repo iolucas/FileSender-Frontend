@@ -197,13 +197,10 @@ function OnDataChannelConnection(id, dataChannel) {
     });
         
     dataChannel.on("ArrayBuffer", function(data) {
-
-        if(device.download) {
+        if(device && device.download) {
             device.download.setFileChunk(data); //if so, set the file chunk
-            if(device && device.download)
-                device.icon.setDownloadProgress(device.download.getLen(), device.download.size);
+            device.icon.setDownloadProgress(device.download.getLen(), device.download.size);
         }
-        
     });
         
     dataChannel.on("Blob", function(data) {
@@ -211,7 +208,7 @@ function OnDataChannelConnection(id, dataChannel) {
         var fileReader = new FileReader();
         fileReader.onload = function() {
             
-            if(device.download) {
+            if(device && device.download) {
                 device.download.setFileChunk(this.result); //if so, set the file chunk
                 device.icon.setDownloadProgress(device.download.getLen(), device.download.size);
             }
@@ -236,7 +233,7 @@ function OnDataChannelConnection(id, dataChannel) {
         
         if(device.localFile) {
             device.CancelUpload(false);
-                        if(window.ptbr)
+            if(window.ptbr)
                 ShowTempMessage("Upload cancelado.", 4000, "#f00");
             else
                 ShowTempMessage("Upload canceled.", 4000, "#f00");
@@ -307,8 +304,7 @@ function OnDataChannelConnection(id, dataChannel) {
     });
     
     dataChannel.on("DownloadRefused", function(fileId) {
-        log(device.download);
-        if(device.download) {
+        if(device.localFile) {
             device.CancelUpload(false);
             if(window.ptbr)
                 ShowTempMessage(device.name + " recusou o arquivo.", 5000, "#f00");
@@ -333,7 +329,7 @@ function OnDataChannelConnection(id, dataChannel) {
     });
     
     dataChannel.on("CancelDownload", function() {
-        if(device.localFile) {
+        if(device.download) {
             if(window.ptbr)
                 ShowTempMessage("Download cancelado.", 4000, "#f00");
             else
@@ -343,7 +339,7 @@ function OnDataChannelConnection(id, dataChannel) {
     });
     
     dataChannel.on("CancelUpload", function() {
-        if(device.download) {
+        if(device.localFile) {
             if(window.ptbr)
                 ShowTempMessage("Upload cancelado.", 4000, "#f00");
             else
@@ -431,7 +427,7 @@ function Device(id, name, origin, type) {
             rtcManager.NewConnection(id);  //create new connection to this id 
             dcOpenCallback[id] = function() {
                 self.dataChannel.emit("NewDownload", fileId);
-                            if(window.ptbr)
+            if(window.ptbr)
                 icon.setUploadState("Aguardando...");
             else
                 icon.setUploadState("Awaiting...");
@@ -452,6 +448,10 @@ function Device(id, name, origin, type) {
                 nLabel = "No";   
         }
         ShowPopup(self, dmsg, self.download, yLabel, nLabel, function() {
+            if(window.ptbr)
+                ShowTempMessage("Download cancelado.", 4000, "#f00");
+            else
+                ShowTempMessage("Download canceled.", 4000, "#f00");
             self.CancelDownload(true);
         }, function() {});
     }, function(){
@@ -465,6 +465,10 @@ function Device(id, name, origin, type) {
                nLabel = "No";            
         }
         ShowPopup(self, umsg, self.localFile, yLabel, nLabel, function() {
+            if(window.ptbr)
+                ShowTempMessage("Upload cancelado.", 4000, "#f00");
+            else
+                ShowTempMessage("Upload canceled.", 4000, "#f00");
             self.CancelUpload(true);
         }, function() {});
     });
