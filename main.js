@@ -307,6 +307,7 @@ function OnDataChannelConnection(id, dataChannel) {
     });
     
     dataChannel.on("DownloadRefused", function(fileId) {
+        log(device.download);
         if(device.download) {
             device.CancelUpload(false);
             if(window.ptbr)
