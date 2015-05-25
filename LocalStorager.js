@@ -78,12 +78,13 @@ function LocalStorager() {
             files[id].fileEntry.createWriter(function(fileWriter) {   //create a writer to write the file chunk into the file   
                 fileWriter.seek(fileWriter.length); // Start write position at last position               
                 fileWriter.onwriteend = function() {   //to be executed once the write event finishes                   
-                    if(callback) //if a callback is passed,
+                    if(callback && files[id]) //if a callback is passed, and the file id is still active
                         //call it with the id and a flag whether this file is completed or not
                         callback(fileWriter.length >= files[id].size);
                 };
                 fileWriter.onerror = function(e) {
-                    alert('Write failed: ' + e.toString());
+                    //alert('Write failed: ' + e.toString());
+                    //An error used to fall here when the download is canceled
                 };
                 // Create a new Blob and write it
                 fileWriter.write(new Blob(fileData, { type: files[id].type }));
