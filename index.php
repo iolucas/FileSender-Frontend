@@ -34,7 +34,8 @@
             var s = new Wocket();
             s.on("connected", function() {
                 s.on("sessionCreated", function(session) {
-                        window.location.replace(window.location.href + "session.php?s=" + session);
+                        //window.location.replace(window.location.href + "session.php?s=" + session);
+                    window.location.replace(window.location.href + session);
                 });
                 s.emit("createSession");
             });
