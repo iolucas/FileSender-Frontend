@@ -10,6 +10,8 @@
 -   opera browser acts exactly like chrome
 --------------*/
 
+var debugging = false;
+
 function isRTCReady() {
     // Chrome or Safari
     if (navigator.webkitGetUserMedia) {
@@ -54,9 +56,6 @@ function SmartRTC(sendDataCallback) {
         
         onGoingConnections[targetId] = peerConnection;   //add this new peerConnection to the onGoingConnections array
         
-        peerConnection.dataChannelDone = false;    //flag to signalize whether this dataChannel is done
-        peerConnection.iceDone = false;    //flag to signalize whether the ice candidates supply are done
-        
         peerConnection.readyToSendICE = false; //flag to signalize whether this connection can send ICE candidates
         peerConnection.iceToBeSend = [];   //array to store the ice candidates to be send
         
@@ -64,13 +63,16 @@ function SmartRTC(sendDataCallback) {
         var dataChannel = peerConnection.createDataChannel("dataChannel", { reliable: true });
         
         //Event to be throw once the dataChannel connection is stabilished
-        dataChannel.onopen = function() {       
-            peerConnection.dataChannelDone = true;  //flags the data channel done
-            if(peerConnection.dataChannelDone && peerConnection.iceDone) {    //if datachannel is done, and ice candidates to receive are done
-                delete onGoingConnections[targetId];   //clears the peerConnection ref in the temp array
-                //console.log("Connection done");
-            }
-            self.OnConnection(targetId, new DataChannel(peerConnection, dataChannel));
+        dataChannel.onopen = function() {
+            debugLog("Connection opened");
+
+            var newDataChannel = new DataChannel(peerConnection, dataChannel);
+            newDataChannel.on("close", function() {
+                delete onGoingConnections[targetId];
+                debugLog("Connection closed (created)");
+            });
+            
+            self.OnConnection(targetId, newDataChannel);
         };
         
         //Event to be throw once the an ice candidate is found
@@ -87,14 +89,14 @@ function SmartRTC(sendDataCallback) {
             peerConnection.setLocalDescription(sdpOffer, function() {
                 //must check about the sdp hack to acelerate data speed        
                 sendDataCallback(targetId, { offer: sdpOffer });
-                //console.log("Local peer sucessfully created.");
+                debugLog("Local peer sucessfully created.");
             }, onSignalingError);
         }, onSignalingError);
         
     };
     
     this.HandleData = function(senderId, data) {
-
+        debugLog(data);
         //if not valid data, return (null candidate comes when the peer is done with candidates)
         if(!data) return;   
         
@@ -110,35 +112,35 @@ function SmartRTC(sendDataCallback) {
             var peerConnection = new RTCPeerConnection(pcConfig, pcConstraints);
 
             onGoingConnections[senderId] = peerConnection;
-            
-            peerConnection.dataChannelDone = false;    //flag to signalize whether this dataChannel is done
-            peerConnection.iceDone = false;    //flag to signalize whether the ice candidates supply are done
                 
             peerConnection.onicecandidate = function(event) {   //on get ice candidates, 
                 sendDataCallback(senderId, { candidate: event.candidate }); 
             };
                 
             peerConnection.ondatachannel = function(event) {
-                //log('Receive Channel Callback: event --> ' + event);
+                debugLog('Receive Channel Callback: event --> ' + event);
                 // Retrieve channel information
                 var dataChannel = event.channel;
-                dataChannel.onopen = function() {                                             
-                    peerConnection.dataChannelDone = true;  //flags the data channel done       
-                    if(peerConnection.dataChannelDone && peerConnection.iceDone) {    //if datachannel is done, and ice candidates to receive are done
-                        delete onGoingConnections[senderId];   //clears the peerConnection ref in the temp array
-                        //console.log("Connection done");
-                    }
-                    self.OnConnection(senderId, new DataChannel(peerConnection, dataChannel));
+                dataChannel.onopen = function() { 
+                    debugLog("Connection opened");
+                    
+                    var newDataChannel = new DataChannel(peerConnection, dataChannel);
+                    newDataChannel.on("close", function() {
+                        delete onGoingConnections[senderId];
+                        debugLog("Connection closed (offered)");
+                    });
+            
+                    self.OnConnection(senderId, newDataChannel);
                 };                
             };          
                 
             peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer), function() {
-                //console.log("Remote descriptor accepted.");             
+                debugLog("Remote descriptor accepted.");             
                 peerConnection.createAnswer(function(sdpAnswer) {
                     sdpAnswer = hackSDP(sdpAnswer);
                     peerConnection.setLocalDescription(sdpAnswer, function() {
                         sendDataCallback(senderId, { answer: sdpAnswer });
-                        //console.log("Local peer sucessfully created.");
+                        debugLog("Local peer sucessfully created.");
                     }, onSignalingError);
                 }, onSignalingError);
             }, onSignalingError);
@@ -151,23 +153,17 @@ function SmartRTC(sendDataCallback) {
                 //iterate thru the iceToBeSend array and send all of them
                 while(onGoingConnections[senderId].iceToBeSend.length)
                     sendDataCallback(senderId, { candidate: onGoingConnections[senderId].iceToBeSend.pop() });
-                //console.log("Remote descriptor accepted.");    
+                debugLog("Remote descriptor accepted.");    
             }, onSignalingError);
                 
-        } else if(data.candidate) { //Its an ice candidate
+        } else if(data.hasOwnProperty("candidate")) { //Its an ice candidate
+            if(!data.candidate) //if the candidate is null, return
+                return;
             
             onGoingConnections[senderId].addIceCandidate(new RTCIceCandidate(data.candidate), function() {
-                //console.log("Ice candidate accepted.");    
+                debugLog("Ice candidate accepted.");    
             }, onSignalingError);
             
-        } else if(data.hasOwnProperty("candidate")) {  //if it is null but has the candidate prop, so the candidates are done
-            //console.log("Ice candidates done.");
-            onGoingConnections[senderId].iceDone = true;
-            //if datachannel is done, and ice candidates to receive are done
-            if(onGoingConnections[senderId].dataChannelDone && onGoingConnections[senderId].iceDone) {    
-                delete onGoingConnections[senderId];   //clears the peerConnection ref in the temp array
-                //console.log("Connection done");
-            }
         } else
             console.log("Bad RTC message received.");
     };
@@ -306,6 +302,12 @@ function hackSDP(sdp) {
     return sdp;
 }
 
+function debugLog(logMessage) {
+    if(debugging) {
+        console.log("--DEBUG--");
+        console.log(logMessage);
+    }
+}
 
 
 
