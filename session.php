@@ -4,7 +4,9 @@
     <head>
         <meta charset="utf-8">
         <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+        <!--Begin Style-->
         <link rel="stylesheet" href="style.css"/>
+        <!--End Style-->
         <title>qeek.me - Instant Sharing</title>        
     </head>
     
@@ -56,6 +58,7 @@
                 ?>
             </table>
         </section>
+        <!--Begin Script-->
         <script src="Wocket.js"></script>
         <script src="layout.js"></script>
         <script src="smartc.js"></script>
@@ -65,6 +68,7 @@
         <script src="downloadManager.js"></script>
         <script src="misc.js"></script>
         <script src="main.js"></script>
+        <!--End Script-->
         <script>    
             <?php
                 if($lang == "pt")
