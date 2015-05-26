@@ -18,14 +18,14 @@ function getCookie(cname) {
     return "";
 }
 
-function getIndexOf(data, char) {
+function getIndexOf(data, character) {
     var indexList = [];    
-    var currIndex = data.indexOf(char);    
+    var currIndex = data.indexOf(character);    
     if(currIndex == -1)
         return indexList;   
     indexList[indexList.length] = currIndex;   
     while(true) {        
-        currIndex = data.indexOf(char, currIndex + 1);      
+        currIndex = data.indexOf(character, currIndex + 1);      
         if(currIndex == -1)
             break;           
         indexList[indexList.length] = currIndex;
