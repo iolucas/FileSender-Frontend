@@ -1,4 +1,4 @@
-var menuOpened = false; 
+//var menuOpened = false; 
 //set menu stuff
 document.body.addEventListener("click", function() {
     if(menuOpened) {

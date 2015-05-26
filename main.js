@@ -3,7 +3,7 @@
 var username = "",  //var to store instance username
     sessionAddr, //= window.location.pathname.substr(1),   //Get sessionAddress from the address bar 
     deviceType = isMobile() ? "mobile":"pc",    //Get deviceType    
-
+    menuOpened = false,
     rtcManager,
     
     wSocket, //Instance to have real time connection with the server
