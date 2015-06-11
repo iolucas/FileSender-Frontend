@@ -1,10 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
         <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
-        <title>qeek.me - Instant Sharing</title>        
+        <title>qeek.me - Instant Sharing</title>
+	<meta content="Qeek.me is the best WebApp to easily transfer files with a direct connection between different devices." name="description">       
     </head>
+	<link rel="image_src" href="http://stackoverflow.com/images/logo.gif" />
     <style>
         body {
             background-color: #000;  

@@ -7,7 +7,8 @@
         <!--Begin Style-->
         <link rel="stylesheet" href="style.css"/>
         <!--End Style-->
-        <title>qeek.me - Instant Sharing</title>        
+        <title>qeek.me - Instant Sharing</title> 
+	<meta content="Qeek.me is the best WebApp to easily transfer files with a direct connection between different devices." name="description">       
     </head>
     
     <body>

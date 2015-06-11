@@ -6,6 +6,8 @@ html, body {
     font-family: 'Calibri';
 }
 
+object[type^="application/gas-events"] { display: none; }
+
 body {
     background-color: rgb(174,167,159);
     background-image: linear-gradient(135deg,rgb(174,167,159),#e8e8e8,rgb(174,167,159));
